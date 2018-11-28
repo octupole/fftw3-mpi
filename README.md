@@ -1,4 +1,4 @@
-# fftw3-mpi
+# fftw3pp-mpi
 
 This is just a test
 
