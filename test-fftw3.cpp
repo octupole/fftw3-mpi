@@ -1,9 +1,16 @@
-// test-fftw3.cpp	-- Massimo Marchi Wed Nov 28 2018
-//
-// $Log$
-//
+//============================================================================
+// Name        : test-fftw3.cpp
+// Author      :
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
 
-#ifndef lint
-static const char *rcsid = "$Header$";
-#endif
+#include <iostream>
+using namespace std;
+int main() {
+	cout << "!!!Hello World!!!" << endl; // prints !!!Hello World!!!
+
+	return 0;
+}
 
