@@ -7,7 +7,7 @@
 
 #ifndef FFTW3PP_FFTW3PP_H_
 #define FFTW3PP_FFTW3PP_H_
-
+#include "fftw3-mpi.h"
 namespace fftw3pp {
 
 class Fftw3pp {
