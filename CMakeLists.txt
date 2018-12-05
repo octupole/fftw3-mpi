@@ -111,15 +111,15 @@ LONG_TODAY(BUILD_DATE)
 include_directories("include")
 include_directories("${PROJECT_SOURCE_DIR}/fftw3p")
 include_directories("fftw3pp")
-add_subdirectory(fftw3pp)
-add_subdirectory(comm)
+#add_subdirectory(fftw3pp)
+#add_subdirectory(comm)
 
 if(FFTW3_FOUND)
 	add_executable(test-fftw3 test-fftw3.cpp)
 endif()
 
 
-target_link_libraries(test-fftw3 fftw3pp comm)
+##target_link_libraries(test-fftw3 fftw3pp comm)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "$ENV{HOME}" CACHE PATH "default install path" FORCE )
