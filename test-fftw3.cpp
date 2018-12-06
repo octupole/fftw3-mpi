@@ -59,8 +59,8 @@ int bamby(MPI_Comm & myComm){
        for (size_t j = 0; j < M; ++j)
          for (size_t k = 0; k < N; ++k)
         	 rin[i][j][k] = ri[local_0_start+i][j][k];
-    if(size == 1) {
-    	cout << rin[64][129][20]<<endl;
+    if(rank == 0) {
+    	cout << rin[4][129][20]<<endl;
     }
 
     double time0=MPI_Wtime();
@@ -75,7 +75,7 @@ int bamby(MPI_Comm & myComm){
     }
     double time1=MPI_Wtime();
 
-    if(rank == 1) {
+    if(rank == 0) {
     	cout << rin[4][129][20]<<endl;
     }
     return 0;
@@ -93,7 +93,7 @@ int bamba(){
     MPI_Comm_size(MPI_COMM_WORLD,&size);
 	std::default_random_engine generator;
 	std::uniform_real_distribution<double> distribution(0.0,1.0);
-    const ptrdiff_t L = 256, M = 256, N = 256;
+    const ptrdiff_t L = 128, M = 128, N = 128;
     unsigned int nx{L},ny{M},nz{N},nzp{(N/2+1)};
     fftw_plan plan0,plan1;
     ptrdiff_t alloc_local, local_n0, local_0_start;
@@ -120,39 +120,41 @@ int bamba(){
 
     /* initialize rin to some function my_func(x,y,z) */
     double time0=MPI_Wtime();
-    for (int i = 0; i < local_n0; ++i)
-       for (int j = 0; j < M; ++j)
-         for (int k = 0; k < N; ++k)
-        	 rin[i][j][k] = ri(local_0_start+i, j, k);
-    if(rank == 0 ){
-    	cout << ri[68][120][32]<<endl;
+    for(int w{0};w<200;w++){
+    	if(!rank) cout << "Step No. "<<w<<endl;
+    	for (int i = 0; i < local_n0; ++i)
+    		for (int j = 0; j < M; ++j)
+    			for (int k = 0; k < N; ++k)
+    				rin[i][j][k] = ri(local_0_start+i, j, k);
+
+    	/* compute transforms as many times as desired */
+    	fftw_execute(plan0);
+
+    	fftw_execute(plan1);
+
+
     }
-
-    /* compute transforms as many times as desired */
-    fftw_execute(plan0);
-
-    fftw_execute(plan1);
-
-
     double time1=MPI_Wtime();
     if(rank==0) cout << time1-time0<<endl;
-
-    if(rank == 1 ){
-    	cout << rin[4][120][32]/double(nx*ny*nz)<<endl;
-    }
     fftw_destroy_plan(plan0);
     fftw_destroy_plan(plan1);
 
     MPI_Finalize();
 	return 0;
 }
+int threads_ok;
 int main(int argc, char **argv)
 {
+    int provided;
+    MPI_Init_thread(&argc, &argv, MPI_THREAD_FUNNELED, &provided);
+    threads_ok = provided >= MPI_THREAD_FUNNELED;
 
-    MPI_Init(&argc, &argv);
-    MPI_Comm myComm;
-    MPI_Comm_dup(MPI_COMM_WORLD, &myComm);
+    if (threads_ok) threads_ok = fftw_init_threads();
+    cout << threads_ok << endl;
     fftw_mpi_init();
+
+    if (threads_ok) fftw_plan_with_nthreads(1);
+
     bamba();
     return 0;
 }

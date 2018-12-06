@@ -27,12 +27,10 @@
 #include <fftw3-mpi.h>
 #else
 #include <fftw3.h>
-#endif
-
-#ifndef HAVE_FFTW_MPI
 using MPI_Comm=int;
 const int MPI_COMM_WORLD{0};
 #endif
+
 #include <cerrno>
 
 #ifndef __Complex_h__
