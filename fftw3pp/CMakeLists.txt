@@ -6,6 +6,6 @@ if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-set(SOURCE Fftw3pp.cpp)
+set(SOURCE Fftw3pp.cpp fftw++.cpp)
 
 add_library(fftw3pp STATIC ${SOURCE})

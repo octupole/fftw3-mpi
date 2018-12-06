@@ -8,6 +8,12 @@ project(fftw3pp CXX C)
 
 include(${CMAKE_SOURCE_DIR}/cmake/macros.cmake)
 
+# Adds GreatCMakeCookOff to module paths
+set(COOKOFF_DOWNLOAD_DIR "${CMAKE_CURRENT_SOURCE_DIR}/GreatCMakeCookOff")
+find_package(GreatCMakeCookOff NO_MODULE PATHS "${COOKOFF_DOWNLOAD_DIR}" QUIET)
+unset(COOKOFF_DOWNLOAD_DIR)
+initialize_cookoff()
+
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
 endif()
@@ -50,8 +56,25 @@ if (PARALLEL)
    ENDIF()
    include(FindOpenMP)
 endif()
+if(MPI_MPICXX_FOUND AND OpenMP_CXX_FLAGS)
+		find_package(FFTW3 COMPONENTS DOUBLE MPI OPENMP)
+		set(FFTW3_MPI_FOUND YES)
+elseif(MPI_MPICXX_FOUND)
+		set(FFTW3_MPI_FOUND YES)
+		find_package(FFTW3 COMPONENTS DOUBLE MPI)
+elseif(OpenMP_CXX_FLAGS)
+		find_package(FFTW3 COMPONENTS DOUBLE OPENMP)
+else()
+	find_package(FFTW3 COMPONENTS DOUBLE)
+endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH} ) 
+
+if (OpenMP_CXX_FLAGS)
+	add_definitions(-DHAVE_OPENMP=1)
+endif()
+if(FFTW3_MPI_FOUND)
+	add_definitions(-DHAVE_FFTW_MPI=1)
+endif()
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.2)
@@ -79,23 +102,6 @@ endif()
 
 
 
-if (OpenMP_CXX_FLAGS)
-	add_definitions(-DHAVE_OPENMP=1)
-	if(PARALLEL)
-		find_package(FFTW3 COMPONENTS DOUBLE OPENMP MPI)
-	else()
-		find_package(FFTW3 COMPONENTS DOUBLE OPENMP)
-	endif()	
-else()
-	if(PARALLEL)
-		find_package(FFTW3 COMPONENTS DOUBLE MPI)
-	else()
-		find_package(FFTW3 COMPONENTS  DOUBLE)
-	endif()	
-endif()
-message(STATUS "Here ${FFTW3_DOUBLE_MPI_FOUND}")
-
-
 
 if (FFTW3_FOUND)
   include_directories (${CMAKE_SOURCE_DIR} ${CMAKE_BINARY_DIR} ${FFTW3_INCLUDE_DIRS})
@@ -111,15 +117,15 @@ LONG_TODAY(BUILD_DATE)
 include_directories("include")
 include_directories("${PROJECT_SOURCE_DIR}/fftw3p")
 include_directories("fftw3pp")
-#add_subdirectory(fftw3pp)
-#add_subdirectory(comm)
+add_subdirectory(fftw3pp)
+add_subdirectory(comm)
 
 if(FFTW3_FOUND)
 	add_executable(test-fftw3 test-fftw3.cpp)
 endif()
 
 
-##target_link_libraries(test-fftw3 fftw3pp comm)
+target_link_libraries(test-fftw3 fftw3pp comm)
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     set (CMAKE_INSTALL_PREFIX "$ENV{HOME}" CACHE PATH "default install path" FORCE )
@@ -156,7 +162,7 @@ message( STATUS "To override these options, add -D{OPTION_NAME}=... to the cmake
 message( STATUS "Particularly useful defines are for:")
 message( STATUS )
 message( STATUS "  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}	(where OpenTRJ executables will be installed)")
-message( STATUS "  -DFFTW3_ROOT=/path/to/fftw3	(select path to installed FFTW3 routines)")
+message( STATUS "  -DHINT_DIRS=/path/to/fftw3	(select path to installed FFTW3 routines)")
 message( STATUS "  -DPARALLEL=OFF	(Do not compile with the default PARALLEL=ON)")
 message( STATUS )
 
