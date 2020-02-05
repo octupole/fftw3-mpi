@@ -63,23 +63,21 @@ int bamby(){
 
     fftwpp::Pcrfft3d Backward3(nx,ny,nz,c_out,rin);
 
-
     for (size_t i = 0; i < local_n0; ++i)
        for (size_t j = 0; j < M; ++j)
          for (size_t k = 0; k < N; ++k)
         	 rin[i][j][k] = ri[local_0_start+i][j][k];
 
     /* compute transforms as many times as desired */
-    if(rank == 0) cout << ri[65][65][19]<<endl;
+
     double time0=MPI_Wtime();
-    for(size_t w{0};w<4;w++){
+    for(size_t w{0};w<1;w++){
     	Forward3.fft(rin,c_out);
 
     	Backward3.fftNormalized(c_out,rin);
     }
     double time1=MPI_Wtime();
 
-    if(rank == 1) cout << rin[1][65][19]<<endl;
     if(rank==0) cout << time1-time0<<endl;
     return 0;
 }
